@@ -1,3 +1,10 @@
 from django.shortcuts import render
+from django.http import JsonResponse
 
-# Create your views here.
+
+def company_details_view(request):
+    return JsonResponse({
+        'company_name': 'Runners for the values',
+        'slogan':'Anywhere, anytime, anywhat...',
+        'contacts':'city-district-country'
+    })
