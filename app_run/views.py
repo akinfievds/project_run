@@ -1,5 +1,8 @@
-from django.shortcuts import render
 from django.http import JsonResponse
+from rest_framework import viewsets
+
+from app_run.models import Run
+from app_run.serializers import RunSerializer
 
 
 def company_details_view(request):
@@ -8,3 +11,8 @@ def company_details_view(request):
         'slogan':'Anywhere, anytime, anywhat...',
         'contacts':'city-district-country'
     })
+
+
+class RunViewSet(viewsets.ModelViewSet):
+    queryset = Run.objects.all()
+    serializer_class = RunSerializer
