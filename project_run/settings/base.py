@@ -114,3 +114,7 @@ STATIC_ROOT = 'static'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+COMPANY_NAME = 'Runners for the values'
+SLOGAN = 'Anywhere, anytime, anywhat...'
+CONTACTS = 'city-district-country'
