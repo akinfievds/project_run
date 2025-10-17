@@ -1,4 +1,5 @@
 from rest_framework.decorators import api_view
+from rest_framework.filters import SearchFilter
 from rest_framework.response import Response
 from rest_framework import viewsets
 
@@ -21,13 +22,15 @@ def company_details_view(request):
 
 
 class RunViewSet(viewsets.ModelViewSet):
-    queryset = Run.objects.all()
+    queryset = Run.objects.select_related('athlete').all()
     serializer_class = RunSerializer
 
 
 class UsersViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = user.objects.select_related('athlete').all()
+    queryset = user.objects.all()
     serializer_class = UserSerializer
+    filter_backends = [SearchFilter]
+    search_fields = ['first_name', 'last_name']
 
     def get_queryset(self):
         qs = self.queryset
