@@ -7,7 +7,6 @@ from rest_framework import viewsets
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
-from django.http import Http404
 
 from app_run.models import Run
 from app_run.serializers import RunSerializer, UserSerializer
@@ -50,9 +49,19 @@ class UsersViewSet(viewsets.ReadOnlyModelViewSet):
 
 class RunStartView(APIView):
     def get(self, request, run_id):
-        if not run_id:
-            raise Http404
         run = get_object_or_404(Run, id=run_id)
+        if run.status != 'init':
+            return Response({'message': 'Incorrect Status'}, status=400)
         run.status = 'in_progress'
+        run.save()
+        return Response(RunSerializer(run).data)
+
+
+class RunStopView(APIView):
+    def get(self, request, run_id):
+        run = get_object_or_404(Run, id=run_id)
+        if run.status != 'in_progress':
+            return Response({'message': 'Incorrect Status'}, status=400)
+        run.status = 'finished'
         run.save()
         return Response(RunSerializer(run).data)
