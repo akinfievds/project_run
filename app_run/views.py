@@ -1,12 +1,17 @@
 from rest_framework.decorators import api_view
 from rest_framework.filters import SearchFilter
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework import viewsets
+
+from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.shortcuts import get_object_or_404
+from django.http import Http404
 
 from app_run.models import Run
 from app_run.serializers import RunSerializer, UserSerializer
-from django.conf import settings
-from django.contrib.auth import get_user_model
+
 
 user = get_user_model()
 
@@ -41,3 +46,13 @@ class UsersViewSet(viewsets.ReadOnlyModelViewSet):
         elif type == 'athlete':
             return qs.filter(is_staff=False)
         return qs
+
+
+class RunStartView(APIView):
+    def get(self, request, run_id):
+        if not run_id:
+            raise Http404
+        run = get_object_or_404(Run, id=run_id)
+        run.status = 'in_progress'
+        run.save()
+        return Response(RunSerializer(run).data)
