@@ -48,7 +48,7 @@ class UsersViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class RunStartView(APIView):
-    def get(self, request, run_id):
+    def post(self, request, run_id):
         run = get_object_or_404(Run, id=run_id)
         if run.status != 'init':
             return Response({'message': 'Incorrect Status'}, status=400)
@@ -58,7 +58,7 @@ class RunStartView(APIView):
 
 
 class RunStopView(APIView):
-    def get(self, request, run_id):
+    def post(self, request, run_id):
         run = get_object_or_404(Run, id=run_id)
         if run.status != 'in_progress':
             return Response({'message': 'Incorrect Status'}, status=400)
