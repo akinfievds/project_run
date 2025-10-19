@@ -4,6 +4,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import viewsets
 
+from django_filters.rest_framework import DjangoFilterBackend
+
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
@@ -28,6 +30,8 @@ def company_details_view(request):
 class RunViewSet(viewsets.ModelViewSet):
     queryset = Run.objects.select_related('athlete').all()
     serializer_class = RunSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['status', 'athlete']
 
 
 class UsersViewSet(viewsets.ReadOnlyModelViewSet):
