@@ -1,5 +1,6 @@
 from rest_framework.decorators import api_view
 from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import viewsets
@@ -15,6 +16,10 @@ from app_run.serializers import RunSerializer, UserSerializer
 
 
 user = get_user_model()
+
+
+class RunPagination(PageNumberPagination):
+    page_size_query_param = 'size'
 
 
 @api_view(['GET'])
@@ -33,6 +38,7 @@ class RunViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['status', 'athlete']
     ordering_fields = ['created_at']
+    pagination_class = RunPagination
 
 
 class UsersViewSet(viewsets.ReadOnlyModelViewSet):
