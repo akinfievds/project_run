@@ -1,5 +1,5 @@
 from rest_framework.decorators import api_view
-from rest_framework.filters import SearchFilter
+from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import viewsets
@@ -32,6 +32,7 @@ class RunViewSet(viewsets.ModelViewSet):
     serializer_class = RunSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['status', 'athlete']
+    ordering_fields = ['created_at']
 
 
 class UsersViewSet(viewsets.ReadOnlyModelViewSet):
