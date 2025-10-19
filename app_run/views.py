@@ -35,7 +35,7 @@ def company_details_view(request):
 class RunViewSet(viewsets.ModelViewSet):
     queryset = Run.objects.select_related('athlete').all()
     serializer_class = RunSerializer
-    filter_backends = [DjangoFilterBackend]
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
     filterset_fields = ['status', 'athlete']
     ordering_fields = ['created_at']
     pagination_class = ProgressRunItemPagination
@@ -44,9 +44,9 @@ class RunViewSet(viewsets.ModelViewSet):
 class UsersViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = user.objects.all()
     serializer_class = UserSerializer
-    filter_backends = [SearchFilter]
+    filter_backends = [SearchFilter, OrderingFilter]
     search_fields = ['first_name', 'last_name']
-    ordering_fields = ['-date_joined']
+    ordering_fields = ['date_joined']
     pagination_class = ProgressRunItemPagination
 
     def get_queryset(self):
