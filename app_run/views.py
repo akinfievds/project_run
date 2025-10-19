@@ -46,7 +46,7 @@ class UsersViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = UserSerializer
     filter_backends = [SearchFilter]
     search_fields = ['first_name', 'last_name']
-    ordering_fields = ['date_joined']
+    ordering_fields = ['-date_joined']
     pagination_class = ProgressRunItemPagination
 
     def get_queryset(self):
