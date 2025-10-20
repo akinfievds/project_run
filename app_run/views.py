@@ -67,6 +67,24 @@ class AthleteInfoViewSet(mixins.RetrieveModelMixin,
         athlete, created = AthleteInfo.objects.get_or_create(user=user)
         return athlete
 
+    def perform_update(self, serializer):
+        user = get_object_or_404(User, id=self.kwargs.get('pk'))
+        goals = serializer.validated_data.get('goals')
+        weight = serializer.validated_data.get('weight')
+        athlete, created = AthleteInfo.objects.update_or_create(
+            user=user,
+            defaults={
+            'goals': goals,
+            'weight': weight
+        })
+        return athlete
+
+    def update(self, request, *args, **kwargs):
+        super().update(request, *args, **kwargs)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data, status=201)
+
 
 class RunStartView(APIView):
     def post(self, request, run_id):
