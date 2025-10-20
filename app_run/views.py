@@ -3,7 +3,7 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework import viewsets
+from rest_framework import mixins, viewsets
 
 from django_filters.rest_framework import DjangoFilterBackend
 
@@ -12,7 +12,7 @@ from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 
 from app_run.models import Run
-from app_run.serializers import RunSerializer, UserSerializer
+from app_run.serializers import RunSerializer, UserSerializer, AthleteInfoSerializer
 
 
 user = get_user_model()
@@ -58,6 +58,13 @@ class UsersViewSet(viewsets.ReadOnlyModelViewSet):
         elif type == 'athlete':
             return qs.filter(is_staff=False)
         return qs
+
+
+class AthleteInfoViewSet(mixins.RetrieveModelMixin,
+                         mixins.UpdateModelMixin,
+                         viewsets.GenericViewSet):
+    queryset = user.objects.all()
+    serializer_class = AthleteInfoSerializer
 
 
 class RunStartView(APIView):
