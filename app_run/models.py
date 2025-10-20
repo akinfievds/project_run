@@ -15,3 +15,9 @@ class Run(models.Model):
     athlete = models.ForeignKey(user, on_delete=models.CASCADE, related_name='runs')
     comment = models.CharField(max_length=255)
     status = models.CharField(max_length=12, choices=STATUSES, default='init')
+
+
+class AthleteInfo(models.Model):
+    goals = models.CharField(max_length=255)
+    weight = models.PositiveSmallIntegerField()
+    user = models.OneToOneField(user, on_delete=models.CASCADE)
