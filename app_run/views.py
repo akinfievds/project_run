@@ -8,14 +8,11 @@ from rest_framework import mixins, viewsets
 from django_filters.rest_framework import DjangoFilterBackend
 
 from django.conf import settings
-from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 
-from app_run.models import Run
+from app_run.models import AthleteInfo, Run
 from app_run.serializers import RunSerializer, UserSerializer, AthleteInfoSerializer
-
-
-user = get_user_model()
 
 
 class ProgressRunItemPagination(PageNumberPagination):
@@ -42,7 +39,7 @@ class RunViewSet(viewsets.ModelViewSet):
 
 
 class UsersViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = user.objects.all()
+    queryset = User.objects.all()
     serializer_class = UserSerializer
     filter_backends = [SearchFilter, OrderingFilter]
     search_fields = ['first_name', 'last_name']
@@ -63,8 +60,12 @@ class UsersViewSet(viewsets.ReadOnlyModelViewSet):
 class AthleteInfoViewSet(mixins.RetrieveModelMixin,
                          mixins.UpdateModelMixin,
                          viewsets.GenericViewSet):
-    queryset = user.objects.all()
     serializer_class = AthleteInfoSerializer
+
+    def get_object(self):
+        user = get_object_or_404(User, id=self.kwargs.get('pk'))
+        athlete, created = AthleteInfo.objects.get_or_create(user=user)
+        return athlete
 
 
 class RunStartView(APIView):
