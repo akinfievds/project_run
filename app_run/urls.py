@@ -1,15 +1,16 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from app_run.views import company_details_view, RunViewSet, RunStartView, RunStopView, UsersViewSet, AthleteInfoViewSet
+from app_run import views
 
 router = DefaultRouter()
-router.register('runs', RunViewSet, basename='runs')
-router.register('users', UsersViewSet, basename='users')
-router.register('athlete_info', AthleteInfoViewSet, basename='athletes')
+router.register('runs', views.RunViewSet, basename='runs')
+router.register('users', views.UsersViewSet, basename='users')
+router.register('athlete_info', views.AthleteInfoViewSet, basename='athletes')
+router.register('challenges', views.ChallengeViewSet, basename='challenges')
 
 urlpatterns = [
-    path('company_details/', company_details_view),
-    path('runs/<int:run_id>/start/', RunStartView.as_view()),
-    path('runs/<int:run_id>/stop/', RunStopView.as_view()),
+    path('company_details/', views.company_details_view),
+    path('runs/<int:run_id>/start/', views.RunStartView.as_view()),
+    path('runs/<int:run_id>/stop/', views.RunStopView.as_view()),
     path('', include(router.urls))
 ]

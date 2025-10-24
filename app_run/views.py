@@ -11,8 +11,8 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 
-from app_run.models import AthleteInfo, Run
-from app_run.serializers import RunSerializer, UserSerializer, AthleteInfoSerializer
+from app_run.models import AthleteInfo, Challenge, Run
+from app_run.serializers import RunSerializer, UserSerializer, AthleteInfoSerializer, ChallengeSerializer
 
 
 class ProgressRunItemPagination(PageNumberPagination):
@@ -84,6 +84,11 @@ class AthleteInfoViewSet(mixins.RetrieveModelMixin,
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         return Response(serializer.data, status=201)
+
+
+class ChallengeViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Challenge.objects.all()
+    serializer_class = ChallengeSerializer
 
 
 class RunStartView(APIView):
