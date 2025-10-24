@@ -89,6 +89,8 @@ class AthleteInfoViewSet(mixins.RetrieveModelMixin,
 class ChallengeViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Challenge.objects.all()
     serializer_class = ChallengeSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['athlete']
 
 
 class RunStartView(APIView):
