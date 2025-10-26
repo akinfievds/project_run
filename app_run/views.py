@@ -110,4 +110,8 @@ class RunStopView(APIView):
             return Response({'message': 'Incorrect Status'}, status=400)
         run.status = 'finished'
         run.save()
+        athlete = run.athlete
+        if (athlete.runs.filter(status='finished').count() >= 10
+            and not Challenge.objects.filter(athlete=athlete, full_name='Сделай 10 Забегов!').exists()):
+            Challenge.objects.create(full_name='Сделай 10 Забегов!', athlete=athlete)
         return Response(RunSerializer(run).data)
