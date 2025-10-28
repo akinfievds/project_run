@@ -118,10 +118,9 @@ class RunStopView(APIView):
         if run.status != 'in_progress':
             return Response({'message': 'Incorrect Status'}, status=400)
         run.status = 'finished'
-        run.distance = round(
-            distance.distance(*[(position.latitude, position.longitude) for position in run.positions.all()]).km,
-            3
-        )
+        run.distance = round(distance.distance(*[(position.latitude, position.longitude)
+                                                 for position in run.positions.all()])
+                                                 .km, 3)
         run.save()
         athlete = run.athlete
         if (athlete.runs.filter(status='finished').count() >= 10
