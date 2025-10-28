@@ -11,6 +11,8 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 
+from geopy import distance
+
 from app_run.models import AthleteInfo, Challenge, Run, Position
 from app_run.serializers import RunSerializer, UserSerializer, AthleteInfoSerializer, ChallengeSerializer, PositionSerializer
 
@@ -116,6 +118,10 @@ class RunStopView(APIView):
         if run.status != 'in_progress':
             return Response({'message': 'Incorrect Status'}, status=400)
         run.status = 'finished'
+        run.distance = round(
+            distance.distance(*[(position.latitude, position.longitude) for position in run.positions.all()]).km,
+            3
+        )
         run.save()
         athlete = run.athlete
         if (athlete.runs.filter(status='finished').count() >= 10
