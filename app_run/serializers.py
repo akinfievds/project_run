@@ -1,7 +1,8 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
+from django.shortcuts import get_object_or_404
 
-from app_run.models import AthleteInfo, Challenge, Run
+from app_run.models import AthleteInfo, Challenge, Run, Position
 
 
 class UserContractedSerializer(serializers.ModelSerializer):
@@ -53,3 +54,24 @@ class ChallengeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Challenge
         fields = '__all__'
+
+
+class PositionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Position
+        fields = '__all__'
+
+    def validate_run(self, run):
+        if not run.status == 'in_progress':
+            raise serializers.ValidationError("Run status has to be 'in_progress'.")
+        return run
+
+    def validate_latitude(self, latitude):
+        if not -90.0 <= latitude <= 90.0:
+            raise serializers.ValidationError('Latitude has to be between -90.0 and 90.0.')
+        return latitude
+
+    def validate_longitude(self, latitude):
+        if not -180.0 <= latitude <= 180.0:
+            raise serializers.ValidationError('Longitude has to be between -180.0 and 180.0.')
+        return latitude

@@ -7,6 +7,7 @@ router.register('runs', views.RunViewSet, basename='runs')
 router.register('users', views.UsersViewSet, basename='users')
 router.register('athlete_info', views.AthleteInfoViewSet, basename='athletes')
 router.register('challenges', views.ChallengeViewSet, basename='challenges')
+router.register('positions', views.PositionViewSet, basename='positions')
 
 urlpatterns = [
     path('company_details/', views.company_details_view),

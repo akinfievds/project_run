@@ -11,8 +11,8 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 
-from app_run.models import AthleteInfo, Challenge, Run
-from app_run.serializers import RunSerializer, UserSerializer, AthleteInfoSerializer, ChallengeSerializer
+from app_run.models import AthleteInfo, Challenge, Run, Position
+from app_run.serializers import RunSerializer, UserSerializer, AthleteInfoSerializer, ChallengeSerializer, PositionSerializer
 
 
 class ProgressRunItemPagination(PageNumberPagination):
@@ -91,6 +91,13 @@ class ChallengeViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = ChallengeSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['athlete']
+
+
+class PositionViewSet(viewsets.ModelViewSet):
+    queryset = Position.objects.all()
+    serializer_class = PositionSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['run']
 
 
 class RunStartView(APIView):
