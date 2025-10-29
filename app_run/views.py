@@ -11,6 +11,8 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 
+from django.db.models import Sum
+
 from geopy import distance
 
 from app_run.models import AthleteInfo, Challenge, Run, Position
@@ -123,7 +125,12 @@ class RunStopView(APIView):
                                                  .km, 3)
         run.save()
         athlete = run.athlete
-        if (athlete.runs.filter(status='finished').count() >= 10
+        finished_runs = athlete.runs.filter(status='finished')
+        if (finished_runs.count() >= 10
             and not Challenge.objects.filter(athlete=athlete, full_name='Сделай 10 Забегов!').exists()):
             Challenge.objects.create(full_name='Сделай 10 Забегов!', athlete=athlete)
+        total_distance = finished_runs.aggregate(Sum('distance'))
+        if (total_distance.get('distance__sum') >= 50
+            and not Challenge.objects.filter(athlete=athlete, full_name='Пробеги 50 километров!').exists()):
+            Challenge.objects.create(full_name='Пробеги 50 километров!', athlete=athlete)
         return Response(RunSerializer(run).data)
