@@ -8,6 +8,7 @@ router.register('users', views.UsersViewSet, basename='users')
 router.register('athlete_info', views.AthleteInfoViewSet, basename='athletes')
 router.register('challenges', views.ChallengeViewSet, basename='challenges')
 router.register('positions', views.PositionViewSet, basename='positions')
+router.register('collectible_item', views.CollectibleItemViewSet, basename='collectible_item')
 
 urlpatterns = [
     path('company_details/', views.company_details_view),

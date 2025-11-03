@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 
-from app_run.models import AthleteInfo, Challenge, Run, Position
+from app_run.models import AthleteInfo, CollectibleItem, Challenge, Run, Position
 
 
 class UserContractedSerializer(serializers.ModelSerializer):
@@ -65,6 +65,22 @@ class PositionSerializer(serializers.ModelSerializer):
         if not run.status == 'in_progress':
             raise serializers.ValidationError("Run status has to be 'in_progress'.")
         return run
+
+    def validate_latitude(self, latitude):
+        if not -90.0 <= latitude <= 90.0:
+            raise serializers.ValidationError("Latitude has to be between -90.0 and 90.0.")
+        return latitude
+
+    def validate_longitude(self, latitude):
+        if not -180.0 <= latitude <= 180.0:
+            raise serializers.ValidationError("Longitude has to be between -180.0 and 180.0.")
+        return latitude
+
+
+class CollectibleItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CollectibleItem
+        fields = "__all__"
 
     def validate_latitude(self, latitude):
         if not -90.0 <= latitude <= 90.0:

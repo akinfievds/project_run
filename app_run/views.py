@@ -15,8 +15,8 @@ from django.db.models import Sum
 
 from geopy import distance
 
-from app_run.models import AthleteInfo, Challenge, Run, Position
-from app_run.serializers import RunSerializer, UserSerializer, AthleteInfoSerializer, ChallengeSerializer, PositionSerializer
+from app_run.models import AthleteInfo, Challenge, Run, Position, CollectibleItem
+from app_run.serializers import RunSerializer, UserSerializer, AthleteInfoSerializer, ChallengeSerializer, PositionSerializer, CollectibleItemSerializer
 
 
 class ProgressRunItemPagination(PageNumberPagination):
@@ -102,6 +102,11 @@ class PositionViewSet(viewsets.ModelViewSet):
     serializer_class = PositionSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['run']
+
+
+class CollectibleItemViewSet(viewsets.ModelViewSet):
+    queryset = CollectibleItem.objects.all()
+    serializer_class = CollectibleItemSerializer
 
 
 class RunStartView(APIView):
