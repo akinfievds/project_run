@@ -10,6 +10,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
+from django.http import HttpResponse
 
 from django.db.models import Sum
 
@@ -21,6 +22,14 @@ from app_run.serializers import RunSerializer, UserSerializer, AthleteInfoSerial
 
 class ProgressRunItemPagination(PageNumberPagination):
     page_size_query_param = 'size'
+
+
+@api_view(['POST'])
+def upload_file(request):
+    uploaded_file = request.FILES.get('file')
+    if uploaded_file:
+        ...
+    return Response("File is not available!", status=400)
 
 
 @api_view(['GET'])

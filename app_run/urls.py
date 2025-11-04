@@ -12,6 +12,7 @@ router.register('collectible_item', views.CollectibleItemViewSet, basename='coll
 
 urlpatterns = [
     path('company_details/', views.company_details_view),
+    path('upload_file/', views.upload_file),
     path('runs/<int:run_id>/start/', views.RunStartView.as_view()),
     path('runs/<int:run_id>/stop/', views.RunStopView.as_view()),
     path('', include(router.urls))
