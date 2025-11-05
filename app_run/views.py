@@ -15,6 +15,7 @@ from django.http import HttpResponse
 from django.db.models import Sum
 
 from geopy import distance
+from openpyxl import load_workbook
 
 from app_run.models import AthleteInfo, Challenge, Run, Position, CollectibleItem
 from app_run.serializers import RunSerializer, UserSerializer, AthleteInfoSerializer, ChallengeSerializer, PositionSerializer, CollectibleItemSerializer
@@ -28,7 +29,24 @@ class ProgressRunItemPagination(PageNumberPagination):
 def upload_file(request):
     uploaded_file = request.FILES.get('file')
     if uploaded_file:
-        ...
+        wb = load_workbook(uploaded_file)
+        ws = wb.active
+        errors = []
+        for row in ws.iter_rows(min_row=2, values_only=True):
+            name, uid, value, latitude, longitude, url = row
+            serializer = CollectibleItemSerializer(data={
+                'name': name,
+                'uid': uid,
+                'value': value,
+                'latitude': latitude,
+                'longitude': longitude,
+                'picture': url
+            })
+            if serializer.is_valid():
+                CollectibleItem.objects.create(**serializer.validated_data)
+            else:
+                errors.append(row)
+        return Response(errors)
     return Response("File is not available!", status=400)
 
 
