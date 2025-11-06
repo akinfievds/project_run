@@ -18,7 +18,7 @@ from geopy import distance
 from openpyxl import load_workbook
 
 from app_run.models import AthleteInfo, Challenge, Run, Position, CollectibleItem
-from app_run.serializers import RunSerializer, UserSerializer, AthleteInfoSerializer, ChallengeSerializer, PositionSerializer, CollectibleItemSerializer
+from app_run.serializers import RunSerializer, UserSerializer, AthleteInfoSerializer, ChallengeSerializer, PositionSerializer, CollectibleItemSerializer, UserDetailSerializer
 
 
 class ProgressRunItemPagination(PageNumberPagination):
@@ -86,6 +86,11 @@ class UsersViewSet(viewsets.ReadOnlyModelViewSet):
         elif type == 'athlete':
             return qs.filter(is_staff=False)
         return qs
+
+    def get_serializer_class(self):
+        if self.action == 'retrieve':
+            return UserDetailSerializer
+        return super().get_serializer_class()
 
 
 class AthleteInfoViewSet(mixins.RetrieveModelMixin,
