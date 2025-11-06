@@ -18,33 +18,6 @@ class RunSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class UserSerializer(serializers.ModelSerializer):
-    type = serializers.SerializerMethodField()
-    runs_finished = serializers.SerializerMethodField()
-
-    class Meta:
-        model = User
-        fields = ("id", "date_joined", "username", "last_name",
-                  "first_name", "type", "runs_finished", )
-
-    def get_type(self, obj):
-        return "coach" if obj.is_staff else "athlete"
-
-    def get_runs_finished(self, obj):
-        return obj.runs.filter(status="finished").count()
-
-
-class UserDetailSerializer(UserSerializer):
-    items = serializers.SerializerMethodField()
-
-    class Meta(UserSerializer.Meta):
-        model = User
-        fields = UserSerializer.Meta.fields + ("items", )
-
-    def get_items(self, obj):
-        return obj.items.all()
-
-
 class AthleteInfoSerializer(serializers.ModelSerializer):
     user_id = serializers.SerializerMethodField()
 
@@ -102,3 +75,27 @@ class CollectibleItemSerializer(serializers.ModelSerializer):
         if not -180.0 <= latitude <= 180.0:
             raise serializers.ValidationError("Longitude has to be between -180.0 and 180.0.")
         return latitude
+
+
+class UserSerializer(serializers.ModelSerializer):
+    type = serializers.SerializerMethodField()
+    runs_finished = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ("id", "date_joined", "username", "last_name",
+                  "first_name", "type", "runs_finished", )
+
+    def get_type(self, obj):
+        return "coach" if obj.is_staff else "athlete"
+
+    def get_runs_finished(self, obj):
+        return obj.runs.filter(status="finished").count()
+
+
+class UserDetailSerializer(UserSerializer):
+    items = CollectibleItemSerializer(many=True)
+
+    class Meta(UserSerializer.Meta):
+        model = User
+        fields = UserSerializer.Meta.fields + ("items", )
