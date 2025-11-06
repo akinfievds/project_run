@@ -44,6 +44,7 @@ def upload_file(request):
             if serializer.is_valid():
                 CollectibleItem.objects.create(**serializer.validated_data)
             else:
+                print(serializer.errors)
                 errors.append(row)
         return Response(errors)
     return Response("File is not available!", status=400)
