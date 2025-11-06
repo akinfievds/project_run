@@ -10,7 +10,6 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
-from django.http import HttpResponse
 
 from django.db.models import Sum
 
@@ -134,6 +133,20 @@ class PositionViewSet(viewsets.ModelViewSet):
     serializer_class = PositionSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['run']
+
+    def perform_create(self, serializer):
+        run = serializer.validated_data.get('run')
+        athlete_latitude = serializer.validated_data.get('latitude')
+        athlete_longitude = serializer.validated_data.get('longitude')
+        items = CollectibleItem.objects.all()
+        for item in items:
+            distance_to_item = round(
+                distance.distance((item.latitude, item.longitude), (athlete_latitude, athlete_longitude)).m,
+                3
+            )
+            if distance_to_item <= 100 and not item in run.athlete.items.all():
+                run.athlete.items.add(item)
+        serializer.save()
 
 
 class CollectibleItemViewSet(viewsets.ModelViewSet):
