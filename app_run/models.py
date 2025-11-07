@@ -16,6 +16,7 @@ class Run(models.Model):
     comment = models.CharField(max_length=255)
     status = models.CharField(max_length=12, choices=STATUSES, default='init')
     distance = models.FloatField(blank=True, null=True)
+    run_time_seconds = models.PositiveSmallIntegerField(default=0)
 
 
 class AthleteInfo(models.Model):
@@ -33,6 +34,7 @@ class Position(models.Model):
     run = models.ForeignKey(Run, on_delete=models.CASCADE, related_name='positions')
     latitude = models.DecimalField(max_digits=6, decimal_places=4)
     longitude = models.DecimalField(max_digits=7, decimal_places=4)
+    date_time = models.DateTimeField(default='2020-01-01T12:00:00.000')
 
 
 class CollectibleItem(models.Model):
