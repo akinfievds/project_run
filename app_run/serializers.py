@@ -41,9 +41,11 @@ class ChallengeSerializer(serializers.ModelSerializer):
 
 
 class PositionSerializer(serializers.ModelSerializer):
+    date_time = serializers.DateTimeField(format="%Y-%m-%dT%H:%M:%S.%f")
+
     class Meta:
         model = Position
-        fields = "__all__"
+        fields = ("id", "run", "latitude", "longitude", "date_time")
 
     def validate_run(self, run):
         if not run.status == 'in_progress':
