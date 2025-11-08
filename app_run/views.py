@@ -11,7 +11,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 
-from django.db.models import Sum, Min, Max
+from django.db.models import Sum, Min, Max, Count, Q
 
 from geopy import distance
 from openpyxl import load_workbook
@@ -70,7 +70,7 @@ class RunViewSet(viewsets.ModelViewSet):
 
 
 class UsersViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = User.objects.all()
+    queryset = User.objects.annotate(runs_finished=Count('runs', filter=Q(runs__status='finished')))
     serializer_class = UserSerializer
     filter_backends = [SearchFilter, OrderingFilter]
     search_fields = ['first_name', 'last_name']
@@ -78,9 +78,8 @@ class UsersViewSet(viewsets.ReadOnlyModelViewSet):
     pagination_class = ProgressRunItemPagination
 
     def get_queryset(self):
-        qs = self.queryset
         type = self.request.query_params.get('type', '')
-        qs = qs.filter(is_superuser=False)
+        qs = self.queryset.filter(is_superuser=False)
         if type == 'coach':
             return qs.filter(is_staff=True)
         elif type == 'athlete':
