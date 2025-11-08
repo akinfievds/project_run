@@ -11,7 +11,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 
-from django.db.models import Sum
+from django.db.models import Sum, Min, Max
 
 from geopy import distance
 from openpyxl import load_workbook
@@ -170,10 +170,13 @@ class RunStopView(APIView):
         run = get_object_or_404(Run, id=run_id)
         if run.status != 'in_progress':
             return Response({'message': 'Incorrect Status'}, status=400)
-        run.status = 'finished'
+        positions = run.positions.all()
         run.distance = round(distance.distance(*[(position.latitude, position.longitude)
-                                                 for position in run.positions.all()])
+                                                 for position in positions])
                                                  .km, 3)
+        timestampts = run.positions.aggregate(start=Min('date_time'), stop=Max('date_time'))
+        run.run_time_seconds = (timestampts.get('stop') - timestampts.get('start')).total_seconds()
+        run.status = 'finished'
         run.save()
         athlete = run.athlete
         finished_runs = athlete.runs.filter(status='finished')
