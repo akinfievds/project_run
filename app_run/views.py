@@ -174,7 +174,7 @@ class RunStopView(APIView):
                                                  for position in positions])
                                                  .km, 3)
         timestampts = run.positions.aggregate(start=Min('date_time'), stop=Max('date_time'))
-        run.run_time_seconds = (timestampts.get('stop') - timestampts.get('start')).total_seconds()
+        run.run_time_seconds = (timestampts.get('stop', 0) - timestampts.get('start', 0)).total_seconds()
         run.status = 'finished'
         run.save()
         athlete = run.athlete
