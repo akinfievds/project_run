@@ -146,23 +146,24 @@ class PositionViewSet(viewsets.ModelViewSet):
             )
             if distance_to_item <= 100 and not item in run.athlete.items.all():
                 run.athlete.items.add(item)
-        existing_positions = run.positions.all()
-        serializer.validated_data['distance'] = round(
-            distance.distance(
-                *[(position.latitude, position.longitude)
-                  for position in existing_positions.order_by('date_time')]
-            ).km, 2
-        )
-        previous_position = existing_positions.order_by('-date_time').first()
-        distance_to_previous_position = distance.distance((previous_position.latitude, previous_position.longitude),
-                                                          (athlete_latitude, athlete_longitude)).m
-        time_from_previous_position = (
-            serializer.validated_data.get('date_time') - previous_position.date_time
-        ).total_seconds()
-        serializer.validated_data['speed'] = round(
-            distance_to_previous_position / time_from_previous_position,
-            2
-        )
+        previous_positions = run.positions.all()
+        if previous_positions.exists():
+            serializer.validated_data['distance'] = round(
+                distance.distance(
+                    *[(position.latitude, position.longitude)
+                    for position in previous_positions.order_by('date_time')]
+                ).km, 2
+            )
+            last_position = previous_positions.order_by('-date_time').first()
+            distance_to_previous_position = distance.distance((last_position.latitude, last_position.longitude),
+                                                            (athlete_latitude, athlete_longitude)).m
+            time_from_previous_position = (
+                serializer.validated_data.get('date_time') - last_position.date_time
+            ).total_seconds()
+            serializer.validated_data['speed'] = round(
+                distance_to_previous_position / time_from_previous_position,
+                2
+            )
         serializer.save()
 
 
