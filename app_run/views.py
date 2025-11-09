@@ -11,7 +11,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 
-from django.db.models import Sum, Min, Max, Count, Q
+from django.db.models import Sum, Min, Max, Count, Q, Avg
 
 from geopy import distance
 from openpyxl import load_workbook
@@ -146,6 +146,23 @@ class PositionViewSet(viewsets.ModelViewSet):
             )
             if distance_to_item <= 100 and not item in run.athlete.items.all():
                 run.athlete.items.add(item)
+        existing_positions = run.positions.all()
+        serializer.validated_data['distance'] = round(
+            distance.distance(
+                *[(position.latitude, position.longitude)
+                  for position in existing_positions.order_by('date_time')]
+            ).km, 2
+        )
+        previous_position = existing_positions.order_by('-date_time').first()
+        distance_to_previous_position = distance.distance((previous_position.latitude, previous_position.longitude),
+                                                          (athlete_latitude, athlete_longitude)).m
+        time_from_previous_position = (
+            serializer.validated_data.get('date_time') - previous_position.date_time
+        ).total_seconds()
+        serializer.validated_data['speed'] = round(
+            distance_to_previous_position / time_from_previous_position,
+            2
+        )
         serializer.save()
 
 
@@ -176,6 +193,7 @@ class RunStopView(APIView):
         timestampts = run.positions.aggregate(start=Min('date_time'), stop=Max('date_time'))
         start, stop = timestampts.get('start'), timestampts.get('stop')
         run.run_time_seconds = (stop - start).total_seconds() if start and stop else 0
+        run.speed = run.positions.aggregate(Avg('speed')).get('speed__avg')
         run.status = 'finished'
         run.save()
         athlete = run.athlete
