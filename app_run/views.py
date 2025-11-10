@@ -13,7 +13,7 @@ from django.shortcuts import get_object_or_404
 
 from django.db.models import Sum, Min, Max, Count, Q, Avg
 
-from geopy import distance
+from geopy.distance import distance
 from openpyxl import load_workbook
 
 from app_run.models import AthleteInfo, Challenge, Run, Position, CollectibleItem
@@ -141,29 +141,23 @@ class PositionViewSet(viewsets.ModelViewSet):
         items = CollectibleItem.objects.all()
         for item in items:
             distance_to_item = round(
-                distance.distance((item.latitude, item.longitude), (athlete_latitude, athlete_longitude)).m,
+                distance((item.latitude, item.longitude), (athlete_latitude, athlete_longitude)).m,
                 3
             )
             if distance_to_item <= 100 and not item in run.athlete.items.all():
                 run.athlete.items.add(item)
-        previous_positions = run.positions.all()
-        if previous_positions.exists():
-            serializer.validated_data['distance'] = round(
-                distance.distance(
-                    *[(position.latitude, position.longitude)
-                    for position in previous_positions.order_by('date_time')]
-                ).km, 2
-            )
-            last_position = previous_positions.order_by('-date_time').first()
-            distance_to_previous_position = distance.distance((last_position.latitude, last_position.longitude),
-                                                            (athlete_latitude, athlete_longitude)).m
+        previous_position = run.positions.all().order_by('-date_time').first()
+        if previous_position.exists():
+            distance_to_previous_position = distance((previous_position.latitude, previous_position.longitude),
+                                                     (athlete_latitude, athlete_longitude)).m
             time_from_previous_position = (
-                serializer.validated_data.get('date_time') - last_position.date_time
+                serializer.validated_data.get('date_time') - previous_position.date_time
             ).total_seconds()
             serializer.validated_data['speed'] = round(
                 distance_to_previous_position / time_from_previous_position,
                 2
             )
+            serializer.validated_data['distance'] = previous_position.distance + distance_to_previous_position
         serializer.save()
 
 
@@ -187,10 +181,9 @@ class RunStopView(APIView):
         run = get_object_or_404(Run, id=run_id)
         if run.status != 'in_progress':
             return Response({'message': 'Incorrect Status'}, status=400)
-        positions = run.positions.all()
-        run.distance = round(distance.distance(*[(position.latitude, position.longitude)
-                                                 for position in positions])
-                                                 .km, 3)
+        run.distance = round(distance(*[(position.latitude, position.longitude)
+                                        for position in run.positions.all()])
+                                        .km, 3)
         timestampts = run.positions.aggregate(start=Min('date_time'), stop=Max('date_time'))
         start, stop = timestampts.get('start'), timestampts.get('stop')
         run.run_time_seconds = (stop - start).total_seconds() if start and stop else 0
