@@ -196,4 +196,7 @@ class RunStopView(APIView):
         if (total_distance.get('distance__sum') >= 50
             and not Challenge.objects.filter(athlete=athlete, full_name='Пробеги 50 километров!').exists()):
             Challenge.objects.create(full_name='Пробеги 50 километров!', athlete=athlete)
+        if (run.distance >= 2 and run.run_time_seconds <= 600
+            and not Challenge.objects.filter(athlete=athlete, full_name='2 километра за 10 минут!').exists()):
+            Challenge.objects.create(full_name='2 километра за 10 минут!', athlete=athlete)
         return Response(RunSerializer(run).data)
