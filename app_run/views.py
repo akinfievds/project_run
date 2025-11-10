@@ -147,7 +147,7 @@ class PositionViewSet(viewsets.ModelViewSet):
             if distance_to_item <= 100 and not item in run.athlete.items.all():
                 run.athlete.items.add(item)
         previous_position = run.positions.all().order_by('-date_time').first()
-        if previous_position.exists():
+        if previous_position:
             distance_to_previous_position = distance((previous_position.latitude, previous_position.longitude),
                                                      (athlete_latitude, athlete_longitude)).m
             time_from_previous_position = (
