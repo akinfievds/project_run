@@ -148,15 +148,12 @@ class PositionViewSet(viewsets.ModelViewSet):
                 run.athlete.items.add(item)
         previous_position = run.positions.all().order_by('-date_time').first()
         if previous_position:
-            distance_to_previous_position = distance((previous_position.latitude, previous_position.longitude),
-                                                     (athlete_latitude, athlete_longitude)).m
+            distance_to_previous_position = round(distance((previous_position.latitude, previous_position.longitude),
+                                                           (athlete_latitude, athlete_longitude)).m, 2)
             time_from_previous_position = (
                 serializer.validated_data.get('date_time') - previous_position.date_time
             ).total_seconds()
-            serializer.validated_data['speed'] = round(
-                distance_to_previous_position / time_from_previous_position,
-                2
-            )
+            serializer.validated_data['speed'] = round(distance_to_previous_position / time_from_previous_position, 2)
             serializer.validated_data['distance'] = previous_position.distance + distance_to_previous_position
         serializer.save()
 
