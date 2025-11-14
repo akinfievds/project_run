@@ -16,7 +16,7 @@ from django.db.models import Sum, Min, Max, Count, Q, Avg
 from geopy.distance import distance
 from openpyxl import load_workbook
 
-from app_run.models import AthleteInfo, Challenge, Run, Position, CollectibleItem
+from app_run.models import AthleteInfo, Challenge, Run, Position, CollectibleItem, Subscribe
 from app_run.serializers import RunSerializer, UserSerializer, AthleteInfoSerializer, ChallengeSerializer, PositionSerializer, CollectibleItemSerializer, UserDetailSerializer
 
 
@@ -87,6 +87,7 @@ class UsersViewSet(viewsets.ReadOnlyModelViewSet):
         return qs
 
     def get_serializer_class(self):
+        print(self.get_object().is_staff)
         if self.action == 'retrieve':
             return UserDetailSerializer
         return super().get_serializer_class()
@@ -200,3 +201,21 @@ class RunStopView(APIView):
             and not Challenge.objects.filter(athlete=athlete, full_name='2 километра за 10 минут!').exists()):
             Challenge.objects.create(full_name='2 километра за 10 минут!', athlete=athlete)
         return Response(RunSerializer(run).data)
+
+
+class SubscribeToCoachView(APIView):
+    def post(self, request, id):
+        athlete_id = request.POST.get('athlete', '')
+        if not athlete_id:
+            return Response({ 'message': 'There isn\'t Athlete ID in request.' }, status=400)
+        try:
+            athlete = User.objects.get(id=athlete_id, type='athlete')
+        except User.DoesNotExist:
+            return Response({ 'message': 'Athlete Instance doesn\'t exist.' }, status=400)
+        coach_id = id
+        try:
+            coach = User.objects.get(id=coach_id, type='coach')
+        except User.DoesNotExist:
+            return Response({ 'message': 'Coach Instance doesn\'t exist.' }, status=400)
+        Subscribe.objects.create(athlete=athlete, coach=coach)
+        return Response({ 'message': f'{athlete} successfully subcribed to {coach}.' }, status=200)
