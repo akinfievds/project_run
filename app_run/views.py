@@ -208,7 +208,9 @@ class SubscribeToCoachView(APIView):
         athlete_id = request.data.get('athlete')
         if not athlete_id:
             return Response({ 'message': 'There isn\'t Athlete ID in request.' }, status=400)
-        athlete = get_object_or_404(User, id=athlete_id, is_staff=False, is_superuser=False)
+        athlete = get_object_or_404(User, id=athlete_id, is_superuser=False)
+        if athlete.is_staff:
+            return Response({ 'message': 'Only athletes could subscribe.' }, status=400)
         try:
             coach = User.objects.get(id=id, is_staff=True, is_superuser=False)
         except User.DoesNotExist:
