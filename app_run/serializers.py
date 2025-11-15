@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 
-from app_run.models import AthleteInfo, CollectibleItem, Challenge, Run, Position
+from app_run.models import AthleteInfo, CollectibleItem, Challenge, Run, Position, Subscribe
 
 
 class UserContractedSerializer(serializers.ModelSerializer):
@@ -96,9 +96,25 @@ class UserSerializer(serializers.ModelSerializer):
         return obj.runs_finished
 
 
-class UserDetailSerializer(UserSerializer):
+class AthleteDetailSerializer(UserSerializer):
     items = CollectibleItemSerializer(many=True)
+    coach = serializers.SerializerMethodField()
 
     class Meta(UserSerializer.Meta):
         model = User
-        fields = UserSerializer.Meta.fields + ("items", )
+        fields = UserSerializer.Meta.fields + ("items", "coach", )
+
+    def get_coach(self, obj):
+        return obj.subscribers.values_list('coach').first()
+
+
+class CoachDetailSerializer(UserSerializer):
+    items = CollectibleItemSerializer(many=True)
+    athletes = serializers.SerializerMethodField()
+
+    class Meta(UserSerializer.Meta):
+        model = User
+        fields = UserSerializer.Meta.fields + ("items", "athletes", )
+
+    def get_athletes(self, obj):
+        return obj.subscribes.values_list('athlete')

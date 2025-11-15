@@ -17,7 +17,7 @@ from geopy.distance import distance
 from openpyxl import load_workbook
 
 from app_run.models import AthleteInfo, Challenge, Run, Position, CollectibleItem, Subscribe
-from app_run.serializers import RunSerializer, UserSerializer, AthleteInfoSerializer, ChallengeSerializer, PositionSerializer, CollectibleItemSerializer, UserDetailSerializer
+from app_run.serializers import RunSerializer, UserSerializer, AthleteInfoSerializer, ChallengeSerializer, PositionSerializer, CollectibleItemSerializer, AthleteDetailSerializer, CoachDetailSerializer
 
 
 class ProgressRunItemPagination(PageNumberPagination):
@@ -87,9 +87,8 @@ class UsersViewSet(viewsets.ReadOnlyModelViewSet):
         return qs
 
     def get_serializer_class(self):
-        print(self.get_object().is_staff)
         if self.action == 'retrieve':
-            return UserDetailSerializer
+            return CoachDetailSerializer if self.get_object().is_staff else AthleteDetailSerializer
         return super().get_serializer_class()
 
 
@@ -205,16 +204,17 @@ class RunStopView(APIView):
 
 class SubscribeToCoachView(APIView):
     def post(self, request, id):
-        athlete_id = request.POST.get('athlete', '')
+        print(request.data)
+        athlete_id = request.data.get('athlete')
         if not athlete_id:
             return Response({ 'message': 'There isn\'t Athlete ID in request.' }, status=400)
         try:
-            athlete = User.objects.get(id=athlete_id, type='athlete')
+            athlete = User.objects.get(id=athlete_id, is_staff=False, is_superuser=False)
         except User.DoesNotExist:
             return Response({ 'message': 'Athlete Instance doesn\'t exist.' }, status=400)
         coach_id = id
         try:
-            coach = User.objects.get(id=coach_id, type='coach')
+            coach = User.objects.get(id=coach_id, is_staff=True, is_superuser=False)
         except User.DoesNotExist:
             return Response({ 'message': 'Coach Instance doesn\'t exist.' }, status=400)
         Subscribe.objects.create(athlete=athlete, coach=coach)
