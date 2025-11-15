@@ -214,4 +214,4 @@ class SubscribeToCoachView(APIView):
         except User.DoesNotExist:
             return Response({ 'message': 'Coach Instance doesn\'t exist.' }, status=400)
         Subscribe.objects.create(athlete=athlete, coach=coach)
-        return Response({ 'message': f'{athlete} successfully subcribed to {coach}.' }, status=200)
+        return Response({ 'message': f'{athlete} successfully subcribed to {coach}.' }, status=201)
