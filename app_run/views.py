@@ -208,14 +208,8 @@ class SubscribeToCoachView(APIView):
         athlete_id = request.data.get('athlete')
         if not athlete_id:
             return Response({ 'message': 'There isn\'t Athlete ID in request.' }, status=400)
-        try:
-            athlete = User.objects.get(id=athlete_id, is_staff=False, is_superuser=False)
-        except User.DoesNotExist:
-            return Response({ 'message': 'Athlete Instance doesn\'t exist.' }, status=400)
-        coach_id = id
-        try:
-            coach = User.objects.get(id=coach_id, is_staff=True, is_superuser=False)
-        except User.DoesNotExist:
-            return Response({ 'message': 'Coach Instance doesn\'t exist.' }, status=400)
-        Subscribe.objects.create(athlete=athlete, coach=coach)
-        return Response({ 'message': f'{athlete} successfully subcribed to {coach}.' }, status=200)
+        Subscribe.objects.create(
+            athlete=get_object_or_404(User, id=athlete_id, is_staff=False, is_superuser=False),
+            coach=get_object_or_404(User, id=id, is_staff=True, is_superuser=False)
+        )
+        return Response({ 'message': 'Subscribe successfull' }, status=200)
