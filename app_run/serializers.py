@@ -105,7 +105,7 @@ class AthleteDetailSerializer(UserSerializer):
         fields = UserSerializer.Meta.fields + ("items", "coach", )
 
     def get_coach(self, obj):
-        return obj.subscribers.values_list('coach').first()
+        return obj.subscribers.values_list('coach', flat=True).first()
 
 
 class CoachDetailSerializer(UserSerializer):
@@ -117,4 +117,4 @@ class CoachDetailSerializer(UserSerializer):
         fields = UserSerializer.Meta.fields + ("items", "athletes", )
 
     def get_athletes(self, obj):
-        return obj.subscribes.values_list('athlete')
+        return obj.subscribes.values_list('athlete', flat=True)
