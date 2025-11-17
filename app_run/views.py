@@ -71,7 +71,10 @@ class RunViewSet(viewsets.ModelViewSet):
 
 
 class UsersViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = User.objects.annotate(runs_finished=Count('runs', filter=Q(runs__status='finished')))
+    queryset = User.objects.annotate(
+        runs_finished=Count('runs', filter=Q(runs__status='finished')),
+        rating=Avg('raitings_to_coach__rating')
+    )
     serializer_class = UserSerializer
     filter_backends = [SearchFilter, OrderingFilter]
     search_fields = ['first_name', 'last_name']
