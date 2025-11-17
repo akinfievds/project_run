@@ -12,8 +12,8 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from app_run.models import (AthleteInfo, CoachRating, Challenge, CollectibleItem, Position,
-                            Run, Subscribe)
+from app_run.models import (AthleteInfo, Challenge, CoachRating,
+                            CollectibleItem, Position, Run, Subscribe)
 from app_run.serializers import (AthleteDetailSerializer,
                                  AthleteInfoSerializer, ChallengeSerializer,
                                  CoachDetailSerializer, CoachRatingSerilizer,

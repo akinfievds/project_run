@@ -1,8 +1,9 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
-from app_run.models import (AthleteInfo, Challenge, CoachRating, CollectibleItem, Position,
-                            Run)
+from app_run.models import (AthleteInfo, Challenge, CoachRating,
+                            CollectibleItem, Position, Run)
+
 
 class UserContractedSerializer(serializers.ModelSerializer):
     class Meta:
