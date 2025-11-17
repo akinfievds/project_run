@@ -12,7 +12,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from app_run.models import (AthleteInfo, Challenge, CollectibleItem, Position,
+from app_run.models import (AthleteInfo, CoachRaiting, Challenge, CollectibleItem, Position,
                             Run, Subscribe)
 from app_run.serializers import (AthleteDetailSerializer,
                                  AthleteInfoSerializer, ChallengeSerializer,
@@ -244,3 +244,28 @@ class ChallengesSummaryView(APIView):
                 }
                 challenge_name['athletes'].append(athlete)
         return Response(challenge_names)
+
+
+class CoachRatingsView(APIView):
+    def post(self, request, coach_id):
+        coach = get_object_or_404(User, id=coach_id, is_superuser=False)
+        if not coach.is_staff:
+            return Response({ 'message': f'The user type ({coach}) is incorrect.' }, status=400)
+        athlete_id = request.data.get('athlete')
+        if not athlete_id:
+            return Response({ 'message': 'There isn\'t Athlete ID in request.' }, status=400)
+        try:
+            athlete = User.objects.get(id=athlete_id, is_superuser=False)
+        except User.DoesNotExist:
+            return Response({ 'message': 'Athlete instance does not exist.' }, status=400)
+        if athlete.is_staff:
+            return Response({ 'message': f'The user type ({athlete}) is incorrect.' }, status=400)
+        if not Subscribe.objects.filter(athlete=athlete, coach=coach).exists():
+            return Response({ 'message': 'Athlete ins\'t subscribed to Coach.' }, status=400)
+        rating = request.data.get('rating')
+        if not rating:
+            return Response({ 'message': 'There isn\'t rating field in request.' }, status=400)
+        mark, created = CoachRaiting.objects.update_or_create(athlete=athlete, defaults={ 'coach': coach, 'rating': rating })
+        if created:
+            return Response({ 'message': f'{athlete} successfully add rating ({mark.rating}) to {coach}.' }, status=200)
+        return Response({ 'message': f'{athlete} successfully change rating ({mark.rating}) to {coach}.' }, status=200)
