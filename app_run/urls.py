@@ -16,5 +16,6 @@ urlpatterns = [
     path('runs/<int:run_id>/start/', views.RunStartView.as_view()),
     path('runs/<int:run_id>/stop/', views.RunStopView.as_view()),
     path('subscribe_to_coach/<int:id>/', views.SubscribeToCoachView.as_view()),
+    path('challenges_summary/', views.ChallengesSummaryView.as_view()),
     path('', include(router.urls))
 ]

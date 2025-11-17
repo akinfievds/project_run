@@ -17,7 +17,7 @@ from geopy.distance import distance
 from openpyxl import load_workbook
 
 from app_run.models import AthleteInfo, Challenge, Run, Position, CollectibleItem, Subscribe
-from app_run.serializers import RunSerializer, UserSerializer, AthleteInfoSerializer, ChallengeSerializer, PositionSerializer, CollectibleItemSerializer, AthleteDetailSerializer, CoachDetailSerializer
+from app_run.serializers import RunSerializer, UserSerializer, AthleteInfoSerializer, ChallengeSerializer, ChallengeSummarySerializer, PositionSerializer, CollectibleItemSerializer, AthleteDetailSerializer, CoachDetailSerializer
 
 
 class ProgressRunItemPagination(PageNumberPagination):
@@ -221,3 +221,22 @@ class SubscribeToCoachView(APIView):
             return Response({ 'message': 'Subscribe is exists.' }, status=400)
         Subscribe.objects.create(athlete=athlete, coach=coach)
         return Response({ 'message': f'{athlete} successfully subcribed to {coach}.' }, status=200)
+
+
+class ChallengesSummaryView(APIView):
+    def get(self, request):
+        challenges = Challenge.objects.all().prefetch_related('athlete')
+        challenge_names = set([challenge.full_name for challenge in challenges])
+        challenge_names = [{ 'name_to_display': challenge_name, 'athletes': [] } for challenge_name in challenge_names]
+        for challenge_name in challenge_names:
+            for challenge in challenges:
+                if challenge_name['name_to_display'] == challenge.full_name:
+                    full_name = ' '.join([challenge.athlete.first_name, challenge.athlete.last_name]) if (
+                        challenge.athlete.first_name and challenge.athlete.last_name) else ''
+                    athlete = {
+                        'id': challenge.athlete.id,
+                        'full_name': full_name,
+                        'username': challenge.athlete.username
+                    }
+                    challenge_name['athletes'].append(athlete)
+        return Response(challenge_names)

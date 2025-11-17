@@ -40,6 +40,13 @@ class ChallengeSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class ChallengeSummarySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Challenge
+        fields = "__all__"
+        depth = 2
+
+
 class PositionSerializer(serializers.ModelSerializer):
     date_time = serializers.DateTimeField(format="%Y-%m-%dT%H:%M:%S.%f")
 
