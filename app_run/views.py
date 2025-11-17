@@ -17,7 +17,7 @@ from geopy.distance import distance
 from openpyxl import load_workbook
 
 from app_run.models import AthleteInfo, Challenge, Run, Position, CollectibleItem, Subscribe
-from app_run.serializers import RunSerializer, UserSerializer, AthleteInfoSerializer, ChallengeSerializer, ChallengeSummarySerializer, PositionSerializer, CollectibleItemSerializer, AthleteDetailSerializer, CoachDetailSerializer
+from app_run.serializers import RunSerializer, UserSerializer, AthleteInfoSerializer, ChallengeSerializer, PositionSerializer, CollectibleItemSerializer, AthleteDetailSerializer, CoachDetailSerializer
 
 
 class ProgressRunItemPagination(PageNumberPagination):
