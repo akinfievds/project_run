@@ -299,9 +299,9 @@ class AnalyticsForCoachView(APIView):
             speed_avg=Avg('runs__speed', filter=Q(runs__status='finished'))
         )
 
-        longest_run_user = athletes.order_by('-longest_run').first()
-        total_run_user = athletes.order_by('-total_run').first()
-        speed_avg_user = athletes.order_by('-speed_avg').first()
+        longest_run_user = athletes.order_by('-longest_run', 'pk').first()
+        total_run_user = athletes.order_by('-total_run', 'pk').first()
+        speed_avg_user = athletes.order_by('-speed_avg', 'pk').first()
 
         analytics = {
             'longest_run_user': longest_run_user.id,
