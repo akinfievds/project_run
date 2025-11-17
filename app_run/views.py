@@ -274,3 +274,35 @@ class CoachRatingsView(APIView):
         if created:
             return Response({ 'message': f'{athlete} successfully set rating ({mark.rating}) to {coach}.' }, status=200)
         return Response({ 'message': f'{athlete} successfully updated rating ({mark.rating}) to {coach}.' }, status=200)
+
+
+class AnalyticsForCoachView(APIView):
+    def get(self, request, coach_id):
+        try:
+            coach = User.objects.get(id=coach_id, is_superuser=False)
+        except User.DoesNotExist:
+            return Response({ 'message': f'User instance with ID: {coach_id} isn\'t exists.' })
+        if not coach.is_staff:
+            return Response({ 'message': f'User with ID: {coach_id} has invalid type.' })
+
+        athletes = User.objects.filter(subscribers__coach=coach).annotate(
+            longest_run=Max('runs__distance', filter=Q(runs__status='finished')),
+            total_run=Sum('runs', filter=Q(runs__status='finished')),
+            total_distance=Sum('runs__distance', filter=Q(runs__status='finished')),
+            speed_avg=Avg('runs__speed', filter=Q(runs__status='finished'))
+        )
+
+        longest_run_user = athletes.order_by('-longest_run').first()
+        total_run_user = athletes.order_by('-total_run').first()
+        speed_avg_user = athletes.order_by('-speed_avg').first()
+
+        analytics = {
+            'longest_run_user': longest_run_user.id,
+            'longest_run_value': longest_run_user.longest_run,
+            'total_run_user': total_run_user.id,
+            'total_run_value': total_run_user.total_distance,
+            'speed_avg_user': speed_avg_user.id,
+            'speed_avg_value': speed_avg_user.speed_avg
+        }
+
+        return Response(analytics)
