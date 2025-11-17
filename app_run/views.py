@@ -295,7 +295,7 @@ class AnalyticsForCoachView(APIView):
 
         athletes = User.objects.filter(subscribers__coach=coach).annotate(
             longest_run=Max('runs__distance', filter=Q(runs__status='finished')),
-            total_run=Sum('runs__distance', filter=Q(runs__status='finished')),
+            total_run=Sum('runs__distance'),
             speed_avg=Avg('runs__speed', filter=Q(runs__status='finished'))
         )
 
