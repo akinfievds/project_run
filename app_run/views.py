@@ -1,23 +1,24 @@
+from django.conf import settings
+from django.contrib.auth.models import User
+from django.db.models import Avg, Count, Max, Min, Q, Sum
+from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
+from geopy.distance import distance
+from openpyxl import load_workbook
+from rest_framework import mixins, viewsets
 from rest_framework.decorators import api_view
-from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework import mixins, viewsets
 
-from django_filters.rest_framework import DjangoFilterBackend
-
-from django.conf import settings
-from django.contrib.auth.models import User
-from django.shortcuts import get_object_or_404
-
-from django.db.models import Sum, Min, Max, Count, Q, Avg
-
-from geopy.distance import distance
-from openpyxl import load_workbook
-
-from app_run.models import AthleteInfo, Challenge, Run, Position, CollectibleItem, Subscribe
-from app_run.serializers import RunSerializer, UserSerializer, AthleteInfoSerializer, ChallengeSerializer, PositionSerializer, CollectibleItemSerializer, AthleteDetailSerializer, CoachDetailSerializer
+from app_run.models import (AthleteInfo, Challenge, CollectibleItem, Position,
+                            Run, Subscribe)
+from app_run.serializers import (AthleteDetailSerializer,
+                                 AthleteInfoSerializer, ChallengeSerializer,
+                                 CoachDetailSerializer,
+                                 CollectibleItemSerializer, PositionSerializer,
+                                 RunSerializer, UserSerializer)
 
 
 class ProgressRunItemPagination(PageNumberPagination):
@@ -226,18 +227,19 @@ class SubscribeToCoachView(APIView):
 
 class ChallengesSummaryView(APIView):
     def get(self, request):
-        challenges = Challenge.objects.all().prefetch_related('athlete')
+        challenges = Challenge.objects.all().select_related('athlete')
         challenge_names = set([challenge.full_name for challenge in challenges])
         challenge_names = [{ 'name_to_display': challenge_name, 'athletes': [] } for challenge_name in challenge_names]
         for challenge_name in challenge_names:
             for challenge in challenges:
-                if challenge_name['name_to_display'] == challenge.full_name:
-                    full_name = ' '.join([challenge.athlete.first_name, challenge.athlete.last_name]) if (
-                        challenge.athlete.first_name and challenge.athlete.last_name) else ''
-                    athlete = {
-                        'id': challenge.athlete.id,
-                        'full_name': full_name,
-                        'username': challenge.athlete.username
-                    }
-                    challenge_name['athletes'].append(athlete)
+                if challenge_name['name_to_display'] != challenge.full_name:
+                    continue
+                full_name = ' '.join([challenge.athlete.first_name, challenge.athlete.last_name]) if (
+                    challenge.athlete.first_name and challenge.athlete.last_name) else ''
+                athlete = {
+                    'id': challenge.athlete.id,
+                    'full_name': full_name,
+                    'username': challenge.athlete.username
+                }
+                challenge_name['athletes'].append(athlete)
         return Response(challenge_names)

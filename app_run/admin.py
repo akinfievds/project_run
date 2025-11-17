@@ -1,6 +1,7 @@
 from django.contrib import admin
 
-from app_run.models import Run, AthleteInfo, Challenge, CollectibleItem, Position, Subscribe
+from app_run.models import (AthleteInfo, Challenge, CollectibleItem, Position,
+                            Run, Subscribe)
 
 admin.site.register(Run)
 admin.site.register(AthleteInfo)

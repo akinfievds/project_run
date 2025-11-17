@@ -1,7 +1,8 @@
-from rest_framework import serializers
 from django.contrib.auth.models import User
+from rest_framework import serializers
 
-from app_run.models import AthleteInfo, CollectibleItem, Challenge, Run, Position, Subscribe
+from app_run.models import (AthleteInfo, Challenge, CollectibleItem, Position,
+                            Run)
 
 
 class UserContractedSerializer(serializers.ModelSerializer):
