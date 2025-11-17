@@ -283,11 +283,11 @@ class AnalyticsForCoachView(APIView):
         except User.DoesNotExist:
             return Response({ 'message': f'User instance with ID: {coach_id} isn\'t exists.' })
         if not coach.is_staff:
-            return Response({ 'message': f'User with ID: {coach_id} has invalid type.' })
+            return Response({ 'message': f'User instance with ID: {coach_id} has invalid type.' })
 
         athletes = User.objects.filter(subscribers__coach=coach).annotate(
             longest_run=Max('runs__distance', filter=Q(runs__status='finished')),
-            total_runs=Sum('runs', filter=Q(runs__status='finished')),
+            total_runs=Count('runs', filter=Q(runs__status='finished')),
             total_distance=Sum('runs__distance', filter=Q(runs__status='finished')),
             speed_avg=Avg('runs__speed', filter=Q(runs__status='finished'))
         )
