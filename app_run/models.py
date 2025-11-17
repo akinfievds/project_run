@@ -1,6 +1,8 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 
+from django.core.validators import MinValueValidator, MaxValueValidator
+
 user = get_user_model()
 
 
@@ -53,6 +55,15 @@ class CollectibleItem(models.Model):
 class Subscribe(models.Model):
     athlete = models.ForeignKey(user, on_delete=models.CASCADE, related_name='subscribers')
     coach = models.ForeignKey(user, on_delete=models.CASCADE, related_name='subscribes')
+
+    class Meta:
+        unique_together = ['athlete', 'coach']
+
+
+class CoachRaiting(models.Model):
+    athlete = models.ForeignKey(user, on_delete=models.CASCADE, related_name='raitings_by_athlete')
+    coach = models.ForeignKey(user, on_delete=models.CASCADE, related_name='raitings_to_coach')
+    rating = models.PositiveSmallIntegerField(null=True, blank=True, validators=[MinValueValidator(1), MaxValueValidator(5)])
 
     class Meta:
         unique_together = ['athlete', 'coach']
