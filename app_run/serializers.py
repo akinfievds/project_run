@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
-from app_run.models import (AthleteInfo, Challenge, CollectibleItem, Position,
+from app_run.models import (AthleteInfo, Challenge, CoachRating, CollectibleItem, Position,
                             Run)
 
 class UserContractedSerializer(serializers.ModelSerializer):
@@ -109,7 +109,7 @@ class AthleteDetailSerializer(UserSerializer):
         fields = UserSerializer.Meta.fields + ("items", "coach", )
 
     def get_coach(self, obj):
-        return obj.subscribers.values_list('coach', flat=True).first()
+        return obj.subscribers.values_list("coach", flat=True).first()
 
 
 class CoachDetailSerializer(UserSerializer):
@@ -121,4 +121,10 @@ class CoachDetailSerializer(UserSerializer):
         fields = UserSerializer.Meta.fields + ("items", "athletes", )
 
     def get_athletes(self, obj):
-        return obj.subscribes.values_list('athlete', flat=True)
+        return obj.subscribes.values_list("athlete", flat=True)
+
+
+class CoachRatingSerilizer(serializers.ModelSerializer):
+    class Meta:
+        model = CoachRating
+        fields = ("athlete", "coach", "rating", )

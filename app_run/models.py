@@ -60,10 +60,7 @@ class Subscribe(models.Model):
         unique_together = ['athlete', 'coach']
 
 
-class CoachRaiting(models.Model):
-    athlete = models.ForeignKey(user, on_delete=models.CASCADE, related_name='raitings_by_athlete')
-    coach = models.ForeignKey(user, on_delete=models.CASCADE, related_name='raitings_to_coach')
+class CoachRating(models.Model):
+    athlete = models.ForeignKey(user, on_delete=models.CASCADE, related_name='ratings_by_athlete')
+    coach = models.ForeignKey(user, on_delete=models.CASCADE, related_name='ratings_to_coach')
     rating = models.PositiveSmallIntegerField(null=True, blank=True, validators=[MinValueValidator(1), MaxValueValidator(5)])
-
-    class Meta:
-        unique_together = ['athlete', 'coach']

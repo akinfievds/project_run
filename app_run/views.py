@@ -12,11 +12,11 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from app_run.models import (AthleteInfo, CoachRaiting, Challenge, CollectibleItem, Position,
+from app_run.models import (AthleteInfo, CoachRating, Challenge, CollectibleItem, Position,
                             Run, Subscribe)
 from app_run.serializers import (AthleteDetailSerializer,
                                  AthleteInfoSerializer, ChallengeSerializer,
-                                 CoachDetailSerializer,
+                                 CoachDetailSerializer, CoachRatingSerilizer,
                                  CollectibleItemSerializer, PositionSerializer,
                                  RunSerializer, UserSerializer)
 
@@ -45,7 +45,6 @@ def upload_file(request):
             if serializer.is_valid():
                 CollectibleItem.objects.create(**serializer.validated_data)
             else:
-                print(serializer.errors)
                 errors.append(row)
         return Response(errors)
     return Response("File is not available!", status=400)
@@ -73,7 +72,7 @@ class RunViewSet(viewsets.ModelViewSet):
 class UsersViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = User.objects.annotate(
         runs_finished=Count('runs', filter=Q(runs__status='finished')),
-        rating=Avg('raitings_to_coach__rating')
+        rating=Avg('ratings_to_coach__rating')
     )
     serializer_class = UserSerializer
     filter_backends = [SearchFilter, OrderingFilter]
@@ -268,7 +267,10 @@ class CoachRatingsView(APIView):
         rating = request.data.get('rating')
         if not rating:
             return Response({ 'message': 'There isn\'t rating field in request.' }, status=400)
-        mark, created = CoachRaiting.objects.update_or_create(athlete=athlete, defaults={ 'coach': coach, 'rating': rating })
+        serializer = CoachRatingSerilizer(data={ 'athlete': athlete.id, 'coach': coach.id, 'rating': rating })
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=400)
+        mark, created = CoachRating.objects.update_or_create(athlete=athlete, defaults={ 'coach': coach, 'rating': rating })
         if created:
-            return Response({ 'message': f'{athlete} successfully add rating ({mark.rating}) to {coach}.' }, status=200)
-        return Response({ 'message': f'{athlete} successfully change rating ({mark.rating}) to {coach}.' }, status=200)
+            return Response({ 'message': f'{athlete} successfully set rating ({mark.rating}) to {coach}.' }, status=200)
+        return Response({ 'message': f'{athlete} successfully updated rating ({mark.rating}) to {coach}.' }, status=200)
