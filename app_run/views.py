@@ -208,7 +208,6 @@ class RunStopView(APIView):
 
 class SubscribeToCoachView(APIView):
     def post(self, request, id):
-        print(request.data)
         athlete_id = request.data.get('athlete')
         if not athlete_id:
             return Response({ 'message': 'There isn\'t Athlete ID in request.' }, status=400)
@@ -218,11 +217,14 @@ class SubscribeToCoachView(APIView):
             return Response({ 'message': 'Athlete instance does not exist.' }, status=400)
         if athlete.is_staff:
             return Response({ 'message': 'Only athletes could subscribe.' }, status=400)
+
         coach = get_object_or_404(User, id=id, is_superuser=False)
         if not coach.is_staff:
             return Response({ 'message': 'Coach Instance doesn\'t exist.' }, status=400)
+
         if Subscribe.objects.filter(athlete=athlete, coach=coach).exists():
             return Response({ 'message': 'Subscribe is exists.' }, status=400)
+
         Subscribe.objects.create(athlete=athlete, coach=coach)
         return Response({ 'message': f'{athlete} successfully subcribed to {coach}.' }, status=200)
 
@@ -253,6 +255,7 @@ class CoachRatingsView(APIView):
         coach = get_object_or_404(User, id=coach_id, is_superuser=False)
         if not coach.is_staff:
             return Response({ 'message': f'The user type ({coach}) is incorrect.' }, status=400)
+
         athlete_id = request.data.get('athlete')
         if not athlete_id:
             return Response({ 'message': 'There isn\'t Athlete ID in request.' }, status=400)
@@ -262,18 +265,23 @@ class CoachRatingsView(APIView):
             return Response({ 'message': 'Athlete instance does not exist.' }, status=400)
         if athlete.is_staff:
             return Response({ 'message': f'The user type ({athlete}) is incorrect.' }, status=400)
+
         if not Subscribe.objects.filter(athlete=athlete, coach=coach).exists():
             return Response({ 'message': 'Athlete ins\'t subscribed to Coach.' }, status=400)
+
         rating = request.data.get('rating')
         if not rating:
             return Response({ 'message': 'There isn\'t rating field in request.' }, status=400)
+
         serializer = CoachRatingSerilizer(data={ 'athlete': athlete.id, 'coach': coach.id, 'rating': rating })
         if not serializer.is_valid():
             return Response(serializer.errors, status=400)
+
         mark, created = CoachRating.objects.update_or_create(athlete=athlete, defaults={ 'coach': coach, 'rating': rating })
-        if created:
-            return Response({ 'message': f'{athlete} successfully set rating ({mark.rating}) to {coach}.' }, status=200)
-        return Response({ 'message': f'{athlete} successfully updated rating ({mark.rating}) to {coach}.' }, status=200)
+        return Response(
+            { 'message': f'{athlete} successfully {"set" if created else "updated"} rating ({mark.rating}) to {coach}.' },
+            status=200
+        )
 
 
 class AnalyticsForCoachView(APIView):
