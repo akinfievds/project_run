@@ -287,22 +287,21 @@ class AnalyticsForCoachView(APIView):
 
         athletes = User.objects.filter(subscribers__coach=coach).annotate(
             longest_run=Max('runs__distance', filter=Q(runs__status='finished')),
-            total_run=Sum('runs', filter=Q(runs__status='finished')),
+            total_runs=Sum('runs', filter=Q(runs__status='finished')),
             total_distance=Sum('runs__distance', filter=Q(runs__status='finished')),
             speed_avg=Avg('runs__speed', filter=Q(runs__status='finished'))
         )
 
         longest_run_user = athletes.order_by('-longest_run').first()
-        total_run_user = athletes.order_by('-total_run').first()
+        total_run_user = athletes.order_by('-total_runs').first()
         speed_avg_user = athletes.order_by('-speed_avg').first()
 
         analytics = {
             'longest_run_user': longest_run_user.id,
-            'longest_run_value': longest_run_user.longest_run,
+            'longest_run_value': round(longest_run_user.longest_run, 2),
             'total_run_user': total_run_user.id,
-            'total_run_value': total_run_user.total_distance,
+            'total_run_value': round(total_run_user.total_distance, 2),
             'speed_avg_user': speed_avg_user.id,
-            'speed_avg_value': speed_avg_user.speed_avg
+            'speed_avg_value': round(speed_avg_user.speed_avg, 2)
         }
-
         return Response(analytics)
