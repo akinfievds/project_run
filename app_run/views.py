@@ -235,7 +235,8 @@ class ChallengesSummaryView(APIView):
                 if challenge_name['name_to_display'] != challenge.full_name:
                     continue
                 full_name = ' '.join([challenge.athlete.first_name, challenge.athlete.last_name]) if (
-                    challenge.athlete.first_name and challenge.athlete.last_name) else ''
+                    challenge.athlete.first_name and challenge.athlete.last_name
+                ) else ''
                 athlete = {
                     'id': challenge.athlete.id,
                     'full_name': full_name,
